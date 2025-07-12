@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="mg">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Boribory sy plus marina</title>
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow-x: hidden;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+
+  .top-bar {
+    width: calc(100% - 40px);
+    max-width: 600px;
+    height: 70px;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 25px;
+    box-sizing: border-box;
+    z-index: 10;
+    border-radius: 20px;
+    margin-top: 25px;
+    position: sticky;
+    top: 25px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .top-bar .circle {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    transition: transform 0.3s ease;
+  }
+
+  .top-bar .circle:hover {
+    transform: scale(1.1);
+  }
+
+  .top-bar .left {
+    background: linear-gradient(45deg, #4CAF50, #8BC34A);
+    box-shadow: 0 4px 8px rgba(76, 175, 80, 0.3);
+  }
+
+  .top-bar .right {
+    background: linear-gradient(45deg, #FF5252, #FF4081);
+    box-shadow: 0 4px 8px rgba(255, 82, 82, 0.3);
+  }
+
+  .center-bar {
+    width: 60px;
+    height: 40px;
+    border: 2px solid rgba(128, 128, 128, 0.3);
+    background: rgba(169, 169, 169, 0.2);
+    align-items: center;
+    justify-content: center;
+    display: flex;
+    border-radius: 10px;
+    backdrop-filter: blur(5px);
+  }
+
+  .top-bar .center {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    border: 2px solid rgba(128, 128, 128, 0.5);
+    background-color: transparent;
+    transition: all 0.3s ease;
+  }
+
+  #mainSvg {
+    width: 100%;
+    max-width: 600px;
+    height: 400px;
+    display: block;
+    margin-top: 15%;
+    filter: drop-shadow(0 20px 30px rgba(0, 0, 0, 0.2));
+  }
+
+  #mainSvg g {
+    stroke: rgba(255, 255, 255, 0.8);
+    stroke-width: 4;
+    fill: none;
+  }
+
+  circle[fill]:hover {
+    cursor: pointer;
+    filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.7));
+  }
+
+  .movable {
+    transition: all 0.3s ease;
+  }
+
+  .button-container {
+    margin-top: 30px;
+    display: flex;
+    gap: 20px;
+  }
+
+  .icon-button {
+    width: 60px;
+    height: 60px;
+    border: none;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  }
+
+  .icon-button:hover {
+    transform: translateY(-5px) scale(1.1);
+    box-shadow: 0 12px 20px rgba(0,0,0,0.3);
+  }
+
+  .icon-button:active {
+    transform: translateY(0) scale(0.95);
+  }
+
+  .icon-button.orange {
+    background: linear-gradient(45deg, #FF9800, #FFC107);
+  }
+
+  .icon-button.orangered {
+    background: linear-gradient(45deg, #FF5722, #FF9800);
+  }
+
+  .icon-button svg {
+    fill: white;
+    width: 28px;
+    height: 28px;
+  }
+
+  .confirm-popup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(5px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+
+  .confirm-popup.show {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  .popup-box {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 25px;
+    padding: 35px;
+    text-align: center;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+    max-width: 320px;
+    width: 90%;
+    transform: translateY(20px);
+    transition: transform 0.3s ease;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+  }
+
+  .confirm-popup.show .popup-box {
+    transform: translateY(0);
+  }
+
+  .popup-box p {
+    font-size: 18px;
+    margin-bottom: 25px;
+    color: #333;
+    line-height: 1.5;
+  }
+
+  .popup-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+  }
+
+  .popup-buttons button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 80px;
+  }
+
+  .popup-buttons button:first-child {
+    background: linear-gradient(45deg, #FF5252, #FF4081);
+    color: white;
+  }
+
+  .popup-buttons button:last-child {
+    background: linear-gradient(45deg, #4CAF50, #8BC34A);
+    color: white;
+  }
+
+  .popup-buttons button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+  }
+
+  @media (max-width: 600px) {
+    .top-bar {
+      height: 60px;
+      padding: 0 15px;
+    }
+    
+    #mainSvg {
+      margin-top: 20%;
+    }
+  }
+</style>
+</head>
+<body>
+
+  <!-- Rectangle ambony misy boribory -->
+  <div class="top-bar">
+    <div class="circle left"></div>
+    <div class="center-bar">
+      <div id="centerIndicator" class="center"></div>
+    </div>
+    <div class="circle right"></div>
+  </div>
+
+  <!-- SVG lalao -->
+  <svg id="mainSvg" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid">
+    <g stroke="black" stroke-width="4" fill="none">
+      <circle cx="200" cy="200" r="160" />
+      <line x1="200" y1="40" x2="200" y2="360" />
+      <line x1="40" y1="200" x2="360" y2="200" />
+      <circle cx="200" cy="200" r="45" />
+      <path d="M160,45 A40,40 0 0,0 240,45" />
+      <path d="M240,355 A40,40 0 0,0 160,355" />
+      <path d="M45,240 A40,40 0 0,0 45,160" />
+      <path d="M355,160 A40,40 0 0,0 355,240" />
+    </g>
+    <circle class="movable" cx="200" cy="200" r="12" fill="green" stroke="none" />
+    <circle class="movable" cx="155" cy="200" r="12" fill="red" stroke="none" />
+    <circle class="movable" cx="200" cy="155" r="12" fill="red" stroke="none" />
+    <circle class="movable" cx="200" cy="245" r="12" fill="red" stroke="none" />
+  </svg>
+
+  <!-- Bokotra -->
+  <div class="button-container">
+    <button class="icon-button orange" onclick="undoLastMove()">
+      <svg viewBox="0 0 24 24">
+        <path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6a6 6 0 0 1-6 6H6v2h6a8 8 0 0 0 0-16z"/>
+      </svg>
+    </button>
+    <button class="icon-button orangered" onclick="resetGame()">
+      <svg viewBox="0 0 24 24">
+        <path d="M13 3a9 9 0 0 0-9 9H1l4 4 4-4H5a7 7 0 1 1 7 7 6.96 6.96 0 0 1-4.95-2.05l-1.42 1.42A8.96 8.96 0 0 0 13 21a9 9 0 0 0 0-18z"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Popup fanamafisana -->
+  <div id="confirmReset" class="confirm-popup hidden">
+    <div class="popup-box">
+      <p>Voulez-vous vraiment recommencer depuis le début ?</p>
+      <div class="popup-buttons">
+        <button onclick="confirmReset(true)">Oui</button>
+        <button onclick="confirmReset(false)">Non</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript -->
+<script>
+  let selectedCircle = null;
+  let currentTurn = "green";
+  let guideCircles = [];
+  let errorMarks = [];
+  const moveHistory = [];
+  
+  const allowedMoves = {
+    "160,45": [{ x: 200, y: 40 }, { x: 200, y: 85 }, { x: 45, y: 160 }],
+    "200,40": [{ x: 160, y: 45 }, { x: 240, y: 45 }, { x: 200, y: 85 }],
+    "240,45": [{ x: 200, y: 40 }, { x: 200, y: 85 }, { x: 355, y: 160 }],
+    "200,85": [{ x: 160, y: 45 }, { x: 200, y: 40 }, { x: 240, y: 45 }, { x: 200, y: 155 }],
+    "45,160": [{ x: 160, y: 45 }, { x: 40, y: 200 }, { x: 85, y: 200 }],
+    "40,200": [{ x: 45, y: 160 }, { x: 85, y: 200 }, { x: 45, y: 240 }],
+    "85,200": [{ x: 45, y: 160 }, { x: 40, y: 200 }, { x: 155, y: 200 }, { x: 45, y: 240 }],
+    "45,240": [{ x: 40, y: 200 }, { x: 85, y: 200 }, { x: 160, y: 355 }],
+    "200,155": [{ x: 200, y: 85 }, { x: 155, y: 200 }, { x: 200, y: 200 }, { x: 245, y: 200 }],
+    "155,200": [{ x: 200, y: 155 }, { x: 85, y: 200 }, { x: 200, y: 200 }, { x: 200, y: 245 }],
+    "200,200": [{ x: 200, y: 155 }, { x: 155, y: 200 }, { x: 245, y: 200 }, { x: 200, y: 245 }],
+    "245,200": [{ x: 200, y: 155 }, { x: 200, y: 200 }, { x: 315, y: 200 }, { x: 200, y: 245 }],
+    "200,245": [{ x: 155, y: 200 }, { x: 200, y: 200 }, { x: 245, y: 200 }, { x: 200, y: 315 }],
+    "355,160": [{ x: 240, y: 45 }, { x: 315, y: 200 }, { x: 360, y: 200 }],
+    "315,200": [{ x: 355, y: 160 }, { x: 245, y: 200 }, { x: 360, y: 200 }, { x: 355, y: 240 }],
+    "360,200": [{ x: 355, y: 160 }, { x: 315, y: 200 }, { x: 355, y: 240 }],
+    "355,240": [{ x: 315, y: 200 }, { x: 360, y: 200 }, { x: 240, y: 355 }],
+    "200,315": [{ x: 200, y: 245 }, { x: 160, y: 355 }, { x: 200, y: 360 }, { x: 240, y: 355 }],
+    "160,355": [{ x: 45, y: 240 }, { x: 200, y: 315 }, { x: 200, y: 360 }],
+    "200,360": [{ x: 200, y: 315 }, { x: 160, y: 355 }, { x: 240, y: 355 }],
+    "240,355": [{ x: 355, y: 240 }, { x: 200, y: 315 }, { x: 200, y: 360 }]
+  };
+  
+  // Update background of centerIndicator
+  function updateCenterIndicator() {
+    const indicator = document.getElementById("centerIndicator");
+    indicator.style.backgroundColor = currentTurn;
+  }
+  
+  function showGuides(currentX, currentY) {
+    clearGuides();
+    const key = `${currentX},${currentY}`;
+    const possibleMoves = allowedMoves[key] || [];
+    possibleMoves.forEach(pos => {
+      const occupied = Array.from(allCircles).some(c => {
+        const cx = parseFloat(c.getAttribute("cx"));
+        const cy = parseFloat(c.getAttribute("cy"));
+        return Math.abs(cx - pos.x) < 1 && Math.abs(cy - pos.y) < 1;
+      });
+      if (!occupied) {
+        const guide = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        guide.setAttribute("cx", pos.x);
+        guide.setAttribute("cy", pos.y);
+        guide.setAttribute("r", 6);
+        guide.setAttribute("fill", "yellow");
+        guide.setAttribute("stroke", "none");
+        guide.setAttribute("pointer-events", "none");
+        document.getElementById("mainSvg").appendChild(guide);
+        guideCircles.push(guide);
+      }
+    });
+  }
+  
+  function clearGuides() {
+    guideCircles.forEach(c => c.remove());
+    guideCircles = [];
+  }
+  
+  function clearErrorMarks() {
+    errorMarks.forEach(e => e.remove());
+    errorMarks = [];
+  }
+  
+  function showErrorMark(x, y) {
+    const mark = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    mark.setAttribute("x", x);
+    mark.setAttribute("y", y + 10);
+    mark.setAttribute("fill", "red");
+    mark.setAttribute("font-size", "30");
+    mark.setAttribute("text-anchor", "middle");
+    mark.setAttribute("class", "error-x");
+    mark.textContent = "×";
+    document.getElementById("mainSvg").appendChild(mark);
+    errorMarks.push(mark);
+    
+    setTimeout(() => mark.classList.add("show"), 10);
+    setTimeout(() => {
+      mark.classList.remove("show");
+      setTimeout(() => {
+        mark.remove();
+        errorMarks = errorMarks.filter(m => m !== mark);
+      }, 500);
+    }, 600);
+  }
+  
+  const allCircles = document.querySelectorAll(".movable");
+  
+  allCircles.forEach(circle => {
+    circle.addEventListener("click", e => {
+      e.stopPropagation();
+      const fillColor = circle.getAttribute("fill");
+      if ((currentTurn === "green" && fillColor !== "green") || (currentTurn === "red" && fillColor !== "red")) {
+        selectedCircle = null;
+        clearGuides();
+        return;
+      }
+      if (selectedCircle === circle) {
+        selectedCircle = null;
+        clearGuides();
+        return;
+      }
+      selectedCircle = circle;
+      const currentX = parseFloat(circle.getAttribute("cx"));
+      const currentY = parseFloat(circle.getAttribute("cy"));
+      showGuides(currentX, currentY);
+    });
+  });
+  
+  document.getElementById("mainSvg").addEventListener("click", e => {
+    clearErrorMarks();
+    if (!selectedCircle) return;
+    
+    const svg = e.currentTarget;
+    const pt = svg.createSVGPoint();
+    pt.x = e.clientX;
+    pt.y = e.clientY;
+    const svgP = pt.matrixTransform(svg.getScreenCTM().inverse());
+    
+    const tapX = Math.round(svgP.x);
+    const tapY = Math.round(svgP.y);
+    
+    const currentX = parseFloat(selectedCircle.getAttribute("cx"));
+    const currentY = parseFloat(selectedCircle.getAttribute("cy"));
+    const key = `${currentX},${currentY}`;
+    const possibleMoves = allowedMoves[key] || [];
+    
+    const nearest = possibleMoves.find(pos => {
+      const dx = svgP.x - pos.x;
+      const dy = svgP.y - pos.y;
+      return Math.sqrt(dx * dx + dy * dy) < 15;
+    });
+    
+    if (nearest) {
+      const occupied = Array.from(allCircles).some(c => {
+        if (c === selectedCircle) return false;
+        const cx = parseFloat(c.getAttribute("cx"));
+        const cy = parseFloat(c.getAttribute("cy"));
+        return Math.abs(cx - nearest.x) < 1 && Math.abs(cy - nearest.y) < 1;
+      });
+      if (occupied) return;
+      
+      moveHistory.push({
+        circle: selectedCircle,
+        from: { x: currentX, y: currentY },
+        to: { x: nearest.x, y: nearest.y },
+        turn: currentTurn
+      });
+      
+      selectedCircle.setAttribute("cx", nearest.x);
+      selectedCircle.setAttribute("cy", nearest.y);
+      currentTurn = currentTurn === "green" ? "red" : "green";
+      updateCenterIndicator();
+      selectedCircle = null;
+      clearGuides();
+    } else {
+      const allPositions = Object.values(allowedMoves).flat();
+      const target = allPositions.find(pos =>
+        Math.abs(pos.x - tapX) < 15 && Math.abs(pos.y - tapY) < 15
+      );
+      if (target) {
+        showErrorMark(target.x, target.y);
+      }
+    }
+  });
+  
+  function undoLastMove() {
+    const lastMove = moveHistory.pop();
+    if (!lastMove) return;
+    lastMove.circle.setAttribute("cx", lastMove.from.x);
+    lastMove.circle.setAttribute("cy", lastMove.from.y);
+    currentTurn = lastMove.turn;
+    updateCenterIndicator();
+    selectedCircle = null;
+    clearGuides();
+  }
+  
+  function resetGame() {
+    document.getElementById("confirmReset").classList.remove("hidden");
+  }
+  
+  function confirmReset(yes) {
+    const popup = document.getElementById("confirmReset");
+    popup.classList.add("hidden");
+    if (yes) {
+      while (moveHistory.length > 0) {
+        undoLastMove();
+      }
+    }
+  }
+  
+  // Initial setup
+  updateCenterIndicator();
+</script>
+</body>
+</html>
